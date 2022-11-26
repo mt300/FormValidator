@@ -9,7 +9,7 @@ app.set("view engine","ejs");
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
-app.use(cookieParser("asdkadka"))
+app.use(cookieParser("oskoskosk")); //senha para gerar o cookie
 
 app.use(session({
     secret: 'keyboard cat',
@@ -21,7 +21,16 @@ app.use(session({
 app.use(flash());
 
 app.get("/",(req,res)=>{
-    res.render("index");
+    var emailError = req.flash("emailError");
+    var nameError = req.flash("nameError");
+    var pointsError = req.flash("pointsError");
+    var email = req.flash("email");
+    var name = req.flash("name");
+    var points = req.flash("points");
+
+    emailError = (emailError == undefined || emailError.length == 0)? undefined : emailError;
+    email = (email == undefined || email.length == 0) ? "" : email;
+    res.render("index",{emailError,nameError,pointsError,email,name,points});
 
 });
 
@@ -32,15 +41,21 @@ app.post("/form",(req,res) => {
     var pointsError;
 
     if(email == undefined || email == ""){
-        emailError = " email error ";
+        emailError = " Field email is empty! ";
     }
-    if(name == undefined || name == ""){
-        nameError = " name error ";
+    if(name == undefined || name == "" || name == " "){
+        nameError = " Field name is empty!";
     }
     if(points == undefined || points <= 0){
-        pointsError = " points error ";
+        pointsError = (points==undefined)?" Field points is empty!  ":" Field points can't be a negative number";
     }
     if( emailError != undefined || nameError != undefined || pointsError != undefined ){
+        req.flash("emailError", emailError);
+        req.flash("nameError",nameError);
+        req.flash("pointsError",pointsError);
+        req.flash("email", email);
+        req.flash("name", name);
+        req.flash("points", points);
         res.redirect("/");
     }else{
         res.send("ok")
